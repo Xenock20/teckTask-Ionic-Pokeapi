@@ -1,0 +1,19 @@
+.logo {
+  width: 150px;
+  margin: 10px;
+}
+
+ion-toolbar {
+  display: flex;
+}
+
+ion-card ion-img {
+  height: 250px;
+  width: 100%;
+  object-fit: contain;
+}
+
+ion-card {
+  margin: 15px auto;
+  width: 90%;
+}

@@ -4,13 +4,20 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonToolbar,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonImg,
 } from "@ionic/react";
-import ExploreContainer from "../components/ExploreContainer";
 import "./Home.css";
 import usePokeData from "../hooks/usePokeData";
 import LoadingSpinner from "../components/pokeballSpineer/PokeBallSpinner";
+import pokemonLogo from "../assets/img/pokemonLogo.png";
 
 const Home: React.FC = () => {
   const pokeDataResult = usePokeData();
@@ -30,20 +37,63 @@ const Home: React.FC = () => {
 
   const { loading, error, pokeData } = pokeDataResult;
 
+  console.log(pokeData);
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Blank</IonTitle>
+        <IonToolbar className="centered-content">
+          <img src={pokemonLogo} alt="Pokemon Logo" className="logo" />
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer />
+        {pokeData.map((e: any) => (
+          <IonCard key={e.id}>
+            <IonImg src={e.pokemon_v2_pokemonsprites}></IonImg>
+            <IonCardHeader>
+              <IonCardTitle>
+                <h1 className="name-poke">
+                  {e.name.charAt(0).toUpperCase() + e.name.slice(1)}
+                </h1>
+              </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <IonList>
+                <IonItem>
+                  <IonLabel>
+                    <h1>Exp. Base: {e.base_experience}</h1>
+                  </IonLabel>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>
+                    <h1>Altura: {e.height / 10}m</h1>
+                  </IonLabel>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>
+                    <h1>Peso: {e.weight / 10}kg</h1>
+                  </IonLabel>
+                </IonItem>
+
+                <IonItem>
+                  <IonList>
+                    <h1>Habilidades:</h1>
+                    {e.pokemon_v2_pokemonabilities.map((e: any, i: number) => (
+                      <IonItem key={i}>
+                        <IonLabel>
+                          <h2>
+                            {e.pokemon_v2_ability.name.charAt(0).toUpperCase() +
+                              e.pokemon_v2_ability.name.slice(1)}
+                          </h2>
+                        </IonLabel>
+                      </IonItem>
+                    ))}
+                  </IonList>
+                </IonItem>
+              </IonList>
+            </IonCardContent>
+          </IonCard>
+        ))}
       </IonContent>
     </IonPage>
   );

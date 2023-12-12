@@ -1,9 +1,10 @@
 // hooks/usePokeData.ts
 import { useQuery, gql } from "@apollo/client";
+import dataPoke from './../data/data';
 
 const pokeApi = gql`
   query samplePokeAPIquery {
-    pokemon_v2_pokemon(limit: 2) {
+    pokemon_v2_pokemon {
       id
       name
       weight
@@ -21,11 +22,47 @@ const pokeApi = gql`
   }
 `;
 
+const arrayRevuelto = (a:Array<any>) => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/*
+const usePokeData = () => {
+
+  const pokeData = dataPoke?.pokemon_v2_pokemon;
+
+  if (!pokeData) {
+    console.log("Datos no disponibles todavía...");
+    return null;
+  }
+
+  const newArrPokeData = pokeData.map((e: any) => {
+    const sprites = e.pokemon_v2_pokemonsprites?.[0]?.sprites;
+
+    if (sprites) {
+      const img = sprites.split(",")[0];
+      const copyImg = img.split('"')[3];
+      return {...e, pokemon_v2_pokemonsprites: copyImg}
+    }
+  });
+
+  const loading = true
+  const error = new Error("");
+  
+  return { loading, error, pokeData: arrayRevuelto(newArrPokeData) };
+};
+*/
+
 const usePokeData = () => {
   const { loading, error, data } = useQuery(pokeApi);
 
   if (loading) console.log("Cargando...");
   if (error) console.error("Error: ", error);
+  
 
   const pokeData = data?.pokemon_v2_pokemon;
 
@@ -39,17 +76,17 @@ const usePokeData = () => {
 
     if (sprites) {
       const img = sprites.split(",")[0];
-      console.log(img);
-      // Puedes retornar un nuevo objeto con la propiedad modificada si es necesario
-      // return { ...e, pokemon_v2_pokemonsprites: img };
+      const copyImg = img.split('"')[3];
+      return {...e, pokemon_v2_pokemonsprites: copyImg}
     }
-
-    // Puedes retornar el mismo objeto o null, dependiendo de tus necesidades
-    // return e;
   });
 
-  return { loading, error, pokeData: newArrPokeData };
+  //const loading = true
+  //const error = new Error("");
+  
+  return { loading, error, pokeData: arrayRevuelto(newArrPokeData) };
 };
+
 
 export default usePokeData;
 
