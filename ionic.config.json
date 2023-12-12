@@ -1,0 +1,7 @@
+{
+  "name": "techTask",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
