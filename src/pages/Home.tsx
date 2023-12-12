@@ -13,6 +13,9 @@ import {
   IonLabel,
   IonList,
   IonImg,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherEventDetail
 } from "@ionic/react";
 import "./Home.css";
 import usePokeData from "../hooks/usePokeData";
@@ -39,6 +42,15 @@ const Home: React.FC = () => {
 
   console.log(pokeData);
 
+  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+    setTimeout(() => {
+      // Any calls to load data go here
+      console.log("Completado");
+      
+      event.detail.complete();
+    }, 2000);
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -47,6 +59,9 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
+      <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
         {pokeData.map((e: any) => (
           <IonCard key={e.id}>
             <IonImg src={e.pokemon_v2_pokemonsprites}></IonImg>
