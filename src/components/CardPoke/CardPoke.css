@@ -1,0 +1,49 @@
+/* CardPoke.css */
+
+.name-poke {
+  text-align: center;
+  font-weight: 600;
+  font-size: 30px;
+  color: #f1f1f1;
+}
+
+.cont-poke-cards {
+  margin: 0px 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.diagonal-border-card {
+  position: relative;
+  overflow: hidden;
+  margin: 10px auto;
+}
+
+.diagonal-border-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(255, 0, 0); /* Puedes cambiar el color del borde diagonal */
+  transform-origin: bottom right;
+  transform: skewY(-20deg); /* Ajusta el ángulo según tus preferencias */
+  z-index: -1;
+  border: 5px solid white;
+}
+
+
+/* Agrega estilos específicos para tablet */
+@media screen and (min-width: 768px) {
+  .cont-poke-cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .cont-poke-cards > IonCard {
+    width: calc(50% - 5px); /* 50% del ancho menos el margen entre tarjetas */
+    margin-bottom: 10px;
+  }
+}

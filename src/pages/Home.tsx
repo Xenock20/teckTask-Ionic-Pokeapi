@@ -7,48 +7,14 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonImg,
-  IonCol,
-  IonGrid,
-  IonRow,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonItem,
 } from "@ionic/react";
 import "./Home.css";
 import LoadingSpinner from "../components/pokeballSpineer/PokeBallSpinner";
 import pokemonLogo from "../assets/img/pokemonLogo.png";
 import CardPoke from "../components/CardPoke/CardPoke";
-import { useQuery, gql } from "@apollo/client";
-
-const arrayRevuelto = (a: Array<any>) => {
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-};
-
-const pokeApi = gql`
-  query samplePokeAPIquery($offset: Int!) {
-    pokemon_v2_pokemon(limit: 10, offset: $offset) {
-      id
-      name
-      weight
-      base_experience
-      height
-      pokemon_v2_pokemonabilities {
-        pokemon_v2_ability {
-          name
-        }
-      }
-      pokemon_v2_pokemonsprites {
-        sprites
-      }
-    }
-  }
-`;
+import { useQuery } from "@apollo/client";
+import arrayRevuelto from "../func/arrayUtils";
+import pokeApi from "../graphql/pokeapi";
 
 const Home: React.FC = () => {
   const [offset, setOffset] = useState(0);

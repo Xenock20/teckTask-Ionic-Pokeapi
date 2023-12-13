@@ -8,13 +8,14 @@ import {
   IonList,
   IonImg,
 } from "@ionic/react";
+import "./CardPoke.css"
 
 export default function CardPoke({ data }: any) {
   return (
-    <>
+    <div className="cont-poke-cards">
       {data.map((e: any, i: any) => (
-        <IonCard key={i}>
-          <IonImg src={e.pokemon_v2_pokemonsprites}></IonImg>
+        <IonCard key={i} className="diagonal-border-card">
+          <IonImg className="img-poke" src={e.pokemon_v2_pokemonsprites}></IonImg>
           <IonCardHeader>
             <IonCardTitle>
               <h1 className="name-poke">
@@ -59,6 +60,6 @@ export default function CardPoke({ data }: any) {
           </IonCardContent>
         </IonCard>
       ))}
-    </>
+    </div>
   );
 }
