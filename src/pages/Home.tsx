@@ -1,33 +1,90 @@
-// components/Home.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonContent,
   IonHeader,
   IonPage,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonToolbar,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonImg,
-  IonRefresher,
-  IonRefresherContent,
-  RefresherEventDetail
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 } from "@ionic/react";
 import "./Home.css";
-import usePokeData from "../hooks/usePokeData";
 import LoadingSpinner from "../components/pokeballSpineer/PokeBallSpinner";
 import pokemonLogo from "../assets/img/pokemonLogo.png";
+import CardPoke from "../components/CardPoke/CardPoke";
+import { useQuery, gql } from "@apollo/client";
+
+const arrayRevuelto = (a: Array<any>) => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+const pokeApi = gql`
+  query samplePokeAPIquery($offset: Int!) {
+    pokemon_v2_pokemon(limit: 10, offset: $offset) {
+      id
+      name
+      weight
+      base_experience
+      height
+      pokemon_v2_pokemonabilities {
+        pokemon_v2_ability {
+          name
+        }
+      }
+      pokemon_v2_pokemonsprites {
+        sprites
+      }
+    }
+  }
+`;
 
 const Home: React.FC = () => {
-  const pokeDataResult = usePokeData();
+  const [offset, setOffset] = useState(0);
+  const [items, setItems] = useState<any[]>([]);
+  
+  const { data, fetchMore } = useQuery(pokeApi, {
+    variables: { offset: offset },
+  });
 
-  if (!pokeDataResult) {
-    // Manejar el caso donde usePokeData retorna null
-    console.log("Datos no disponibles todavía...");
+  useEffect(() => {
+    setOffset(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const pokeData = data?.pokemon_v2_pokemon;
+
+  useEffect(() => {
+    if (!pokeData || !Array.isArray(pokeData)) {
+      console.log("Datos no disponibles todavía...");
+      return;
+    }
+
+    const newArrPokeData = arrayRevuelto(
+      pokeData.map((e: any) => {
+        const sprites = e.pokemon_v2_pokemonsprites?.[0]?.sprites;
+
+        if (sprites) {
+          const img = sprites.split(",")[0];
+          const copyImg = img.split('"')[3];
+          return { ...e, pokemon_v2_pokemonsprites: copyImg };
+        }
+
+        return e;
+      })
+    );
+
+    setItems((prevItems) => {
+      const uniqueItems = newArrPokeData.filter(
+        (newItem) => !prevItems.some((item) => item.id === newItem.id)
+      );
+      return [...prevItems, ...uniqueItems];
+    });
+  }, [pokeData]);
+
+  if (items.length === 0) {
     return (
       <IonPage>
         <IonHeader></IonHeader>
@@ -38,19 +95,6 @@ const Home: React.FC = () => {
     );
   }
 
-  const { loading, error, pokeData } = pokeDataResult;
-
-  console.log(pokeData);
-
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    setTimeout(() => {
-      // Any calls to load data go here
-      console.log("Completado");
-      
-      event.detail.complete();
-    }, 2000);
-  }
-
   return (
     <IonPage>
       <IonHeader>
@@ -59,56 +103,30 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-      <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent></IonRefresherContent>
-        </IonRefresher>
-        {pokeData.map((e: any) => (
-          <IonCard key={e.id}>
-            <IonImg src={e.pokemon_v2_pokemonsprites}></IonImg>
-            <IonCardHeader>
-              <IonCardTitle>
-                <h1 className="name-poke">
-                  {e.name.charAt(0).toUpperCase() + e.name.slice(1)}
-                </h1>
-              </IonCardTitle>
-            </IonCardHeader>
-            <IonCardContent>
-              <IonList>
-                <IonItem>
-                  <IonLabel>
-                    <h1>Exp. Base: {e.base_experience}</h1>
-                  </IonLabel>
-                </IonItem>
-                <IonItem>
-                  <IonLabel>
-                    <h1>Altura: {e.height / 10}m</h1>
-                  </IonLabel>
-                </IonItem>
-                <IonItem>
-                  <IonLabel>
-                    <h1>Peso: {e.weight / 10}kg</h1>
-                  </IonLabel>
-                </IonItem>
+        <CardPoke data={items}></CardPoke>
+        <IonInfiniteScroll
+          onIonInfinite={async (ev) => {
+            await fetchMore({
+              variables: { offset: offset + 10 },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) return prev;
+                return {
+                  ...prev,
+                  pokemon_v2_pokemon: [
+                    ...prev.pokemon_v2_pokemon,
+                    ...fetchMoreResult.pokemon_v2_pokemon,
+                  ],
+                };
+              },
+            });
 
-                <IonItem>
-                  <IonList>
-                    <h1>Habilidades:</h1>
-                    {e.pokemon_v2_pokemonabilities.map((e: any, i: number) => (
-                      <IonItem key={i}>
-                        <IonLabel>
-                          <h2>
-                            {e.pokemon_v2_ability.name.charAt(0).toUpperCase() +
-                              e.pokemon_v2_ability.name.slice(1)}
-                          </h2>
-                        </IonLabel>
-                      </IonItem>
-                    ))}
-                  </IonList>
-                </IonItem>
-              </IonList>
-            </IonCardContent>
-          </IonCard>
-        ))}
+            setOffset(offset + 10);
+
+            setTimeout(() => ev.target.complete(), 500);
+          }}
+        >
+          <IonInfiniteScrollContent></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
       </IonContent>
     </IonPage>
   );
