@@ -6,6 +6,15 @@ import {
   IonToolbar,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
+  IonImg,
+  IonCol,
+  IonGrid,
+  IonRow,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonItem,
 } from "@ionic/react";
 import "./Home.css";
 import LoadingSpinner from "../components/pokeballSpineer/PokeBallSpinner";
@@ -44,7 +53,7 @@ const pokeApi = gql`
 const Home: React.FC = () => {
   const [offset, setOffset] = useState(0);
   const [items, setItems] = useState<any[]>([]);
-  
+
   const { data, fetchMore } = useQuery(pokeApi, {
     variables: { offset: offset },
   });
@@ -99,7 +108,7 @@ const Home: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar className="centered-content">
-          <img src={pokemonLogo} alt="Pokemon Logo" className="logo" />
+          <IonImg src={pokemonLogo} alt="Pokemon Logo" className="logo" />
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
